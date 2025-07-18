@@ -15,8 +15,13 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-  const template = await Template.findById(req.params.id);
-  res.json(template);
+  try {
+    const template = await Template.findById(req.params.id);
+    res.json(template);
+  } catch (err) {
+    res.status(500).json({ error: 'Invalid ID or server error', details: err.message });
+  }
 });
+
 
 module.exports = router;
