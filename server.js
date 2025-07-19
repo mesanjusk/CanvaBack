@@ -19,8 +19,9 @@ const allowedOrigins = [
   'https://canvas-gray-five.vercel.app'
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -28,11 +29,12 @@ app.use(cors({
     }
   },
   credentials: true,
-}));
+};
 
+app.use(cors(corsOptions));
 
-// ✅ Handle preflight requests
-app.options('*', cors());
+// Preflight requests (important!)
+app.options('*', cors(corsOptions));
 
 mongoose.connect(process.env.MONGO_URI);
 
