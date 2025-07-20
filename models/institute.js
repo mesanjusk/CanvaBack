@@ -94,7 +94,7 @@ const instituteSchema = new mongoose.Schema({
 
   trialExpiresAt: {
     type: Date,
-    default: () => new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+    default: () => new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 days
   },
 
   supportEmail: {
@@ -108,8 +108,7 @@ const instituteSchema = new mongoose.Schema({
   }
 });
 
-// Add index for subdomain and UUID
-instituteSchema.index({ institute_uuid: 1 }, { unique: true });
+// ✅ Only index subdomain (institute_uuid already has `unique: true`)
 instituteSchema.index({ 'access.subdomain': 1 });
 
 module.exports = mongoose.model('Institute', instituteSchema);
