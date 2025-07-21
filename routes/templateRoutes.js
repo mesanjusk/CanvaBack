@@ -42,6 +42,7 @@ router.post('/save', upload.single('image'), async (req, res) => {
       $or: [{ name: subcategory }, { subcategory_uuid: subcategory }]
     });
     if (!subcategoryDoc) return res.status(400).json({ message: 'Invalid subcategory' });
+    
 
     const newTemplate = new Template({
       template_uuid: uuid(),
@@ -50,10 +51,11 @@ router.post('/save', upload.single('image'), async (req, res) => {
       subCategory: subcategoryDoc.subcategory_uuid,
       price,
       image: imageUrl,
-      canvasJson: canvasJson ? JSON.parse(canvasJson) : null
+      canvasJson: JSON.parse(canvasJson)
     });
 
     await newTemplate.save();
+    console.log("Saved Template:", newTemplate);
     res.status(201).json(newTemplate);
   } catch (err) {
     console.error('Error saving template:', err);
