@@ -6,12 +6,27 @@ const Institute = require('../models/institute');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../utils/cloudinary.js');
+
+// Configure Cloudinary storage
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'mern-images',
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+  },
+});
+
+const upload = multer({ storage });
+
 require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 
 // POST /api/institute/signup
-router.post('/signup', async (req, res) => {
+router.post('/signup', upload.fields([{ name: 'logo' }, { name: 'signature' }]), async (req, res) => {
   try {
     const {
       institute_title,
@@ -22,6 +37,10 @@ router.post('/signup', async (req, res) => {
       theme_color = '6fa8dc',
       plan_type = 'trial'
     } = req.body;
+
+    const logoUrl = req.files['logo']?.[0]?.path || '';
+const signatureUrl = req.files['signature']?.[0]?.path || '';
+
 
     if (
       !institute_title ||
@@ -55,25 +74,27 @@ router.post('/signup', async (req, res) => {
 
     // Step 1: Create Institute
     const newInstitute = new Institute({
-      institute_uuid: instituteUUID,
-      institute_title,
-      institute_type,
-      center_code,
-      institute_call_number,
-      center_head_name,
-      contactEmail: email,
-      trialExpiresAt: trialExpiry,
-      plan_type,
-      status: 'trial',
-      theme: {
-        color: theme_color,
-        logo: '',
-        favicon: ''
-      },
-      whiteLabel: false,
-      modulesEnabled: [],
-      users: []
-    });
+  institute_uuid: instituteUUID,
+  institute_title,
+  institute_type,
+  center_code,
+  institute_call_number,
+  center_head_name,
+  contactEmail: email,
+  trialExpiresAt: trialExpiry,
+  plan_type,
+  status: 'trial',
+  logo: logoUrl,
+  signature: signatureUrl,
+  theme: {
+    color: theme_color,
+    logo: logoUrl,
+    favicon: ''
+  },
+  whiteLabel: false,
+  modulesEnabled: [],
+  users: []
+});
 
     await newInstitute.save();
 
@@ -206,6 +227,8 @@ router.post('/send-message', async (req, res) => {
   try {
     const response = await fetch(url);
     const data = await response.text();
+
+    console.log('✅ WhatsApp API response:', data);
 
     let userId = null;
     if (type === 'forgot') {

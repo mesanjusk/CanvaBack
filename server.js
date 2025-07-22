@@ -5,6 +5,9 @@ const instituteRoutes = require('./routes/instituteRoutes');
 const templateRoutes = require('./routes/templateRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const subcategoryRoutes = require('./routes/subcategoryRoutes');
+const studentRoutes = require('./routes/studentRoutes');
+const brandingRoutes = require('./routes/brandingRoutes');
+const orgCategoryRoutes = require('./routes/orgCategoryRoutes');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -46,6 +49,9 @@ app.use('/api/institute', instituteRoutes);
 app.use('/api/template', templateRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/subcategory', subcategoryRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/branding', brandingRoutes);
+app.use('/api/org-categories', orgCategoryRoutes);
 // Also valid:
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found', path: req.originalUrl });

@@ -41,6 +41,16 @@ const instituteSchema = new mongoose.Schema({
     unique: true
   },
 
+  logo: {
+    type: String,
+    required: true,
+  },
+
+  signature: {
+    type: String,
+    required: true
+  },
+
   theme: {
     color: { type: String, default: '6fa8dc' },
     logo: { type: String, default: '' },
