@@ -213,11 +213,15 @@ router.put('/update/:id', async (req, res) => {
 });
 
 router.post('/send-message', async (req, res) => {
-  const { mobile, message, type, userName } = req.body;
+  const { mobile, type, userName } = req.body;
 
-  if (!mobile || !message || !type || !userName) {
+  if (!mobile || !type || !userName) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
+
+  // 🔐 Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000);
+  const message = `Your OTP for ${type === 'signup' ? 'registration' : 'verification'} is ${otp}`;
 
   const apiKey = '9d8db6b2a1584a489e7270a9bbe1b7a0';
   const encodedMobile = encodeURIComponent(mobile);
@@ -229,12 +233,14 @@ router.post('/send-message', async (req, res) => {
     const data = await response.text();
 
     console.log('✅ WhatsApp API response:', data);
+    console.log('✅ OTP generated and sent:', otp); // Log OTP for testing
 
     let userId = null;
+
     if (type === 'forgot') {
       const user = await User.findOne({
-        mobile: mobile.replace(/^91/, ''),         
-        login_username: userName                    
+        mobile: mobile.replace(/^91/, ''),
+        login_username: userName
       });
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
@@ -242,7 +248,15 @@ router.post('/send-message', async (req, res) => {
       userId = user._id;
     }
 
-    res.status(200).json({ success: true, data, userId });
+    // ⬇️ OPTIONAL: Save OTP in DB with expiration (5 mins)
+    // await OtpModel.create({ mobile, otp, expiresAt: Date.now() + 5 * 60 * 1000 });
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP sent via WhatsApp',
+      userId,
+      otp // ✅ Return OTP in response for frontend testing
+    });
   } catch (error) {
     console.error('API Error:', error);
     res.status(500).json({ error: 'Failed to send message' });
