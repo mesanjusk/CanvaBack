@@ -154,6 +154,15 @@ res.json({
   }
 });
 
+router.get('/', async (req, res) => {
+  try {
+    const institutes = await Institute.find().sort({ createdAt: -1 });
+    res.status(200).json(institutes);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET institute by ID
 router.get('/:id', async (req, res) => {
   try {
