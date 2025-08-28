@@ -43,7 +43,7 @@ exports.getAdmissionByStudentUUID = async (req, res) => {
 // Get All Admissions (with optional filters)
 exports.getAdmissions = async (req, res) => {
   try {
-    const { institute_uuid, course, batch } = req.query;
+    const { institute_uuid, course, batchTime } = req.query;
 
     const match = {};
     if (institute_uuid) match.institute_uuid = institute_uuid;
