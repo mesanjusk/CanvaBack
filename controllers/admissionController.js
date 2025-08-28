@@ -48,7 +48,7 @@ exports.getAdmissions = async (req, res) => {
     const match = {};
     if (institute_uuid) match.institute_uuid = institute_uuid;
     if (course) match.course = course;
-    if (batch) match.batch = batch;
+    if (batchTime) match.batchTime = batchTime;
 
     const pipeline = [
       { $match: match },
