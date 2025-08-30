@@ -123,4 +123,29 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// ================================
+// PUT /api/template/update-canvas/:id
+router.put("/update-canvas/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { placeholders } = req.body;
+
+    const updated = await Template.findByIdAndUpdate(
+      id,                        // ✅ use Mongo _id directly
+      { $set: { placeholders } },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Template not found" });
+    }
+
+    res.json({ message: "Template updated successfully", template: updated });
+  } catch (err) {
+    console.error("Error updating template:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
 module.exports = router;
