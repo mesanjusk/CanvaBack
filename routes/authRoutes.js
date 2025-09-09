@@ -203,6 +203,38 @@ router.post('/register', async (req, res) => {
   }
 });
 
+router.post('/verify', async (req, res) => {
+  const { token } = req.body;
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.user_id);
+    const institute = await Institute.findOne({ institute_uuid: decoded.institute_uuid });
+
+    if (!user || !institute) {
+      return res.status(401).json({ success: false, message: 'Invalid user/institute' });
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        role: user.role,
+        username: user.login_username,
+      },
+      institute: {
+        institute_uuid: institute.institute_uuid,
+        institute_name: institute.institute_title,
+        institute_id: institute._id,
+        theme_color: institute.theme?.color || '6fa8dc',
+      }
+    });
+  } catch (err) {
+    res.status(401).json({ success: false, message: 'Invalid or expired token' });
+  }
+});
+
+
 // ✅ Get users by institute_uuid
 router.get('/GetUserList/:institute_id', async (req, res) => {
   const { institute_id } = req.params;
