@@ -207,7 +207,7 @@ router.post('/verify', async (req, res) => {
   const { token } = req.body;
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.user_id);
+    const user = await User.findOne({ user_uuid: decoded.user_uuid });
     const institute = await Institute.findOne({ institute_uuid: decoded.institute_uuid });
 
     if (!user || !institute) {
