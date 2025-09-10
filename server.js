@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
+const gallaryRoutes = require('./routes/gallaryRoutes');
 const instituteRoutes = require('./routes/instituteRoutes');
 const templateRoutes = require('./routes/templateRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
@@ -48,6 +49,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.use('/api/auth', authRoutes);
 app.use('/api/institute', instituteRoutes);
+app.use('/api/gallary', gallaryRoutes);
 app.use('/api/template', templateRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/subcategory', subcategoryRoutes);
