@@ -22,7 +22,8 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://canvas-gray-five.vercel.app'
+  'https://canvas-gray-five.vercel.app',
+  'https://framee.sanjusk.in'
 ];
 
 const corsOptions = {
