@@ -19,34 +19,24 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-// POST /api/gallary - Upload logo & signature
-router.post(
-  "/",
-  upload.fields([{ name: "logo", maxCount: 1 }, { name: "signature", maxCount: 1 }]),
-  async (req, res) => {
-    try {
-      const { institute_uuid } = req.body;
-      const files = req.files;
+// POST /api/gallary 
+router.post('/', upload.single('image'), async (req, res) => {
+  try {
+    const { institute_uuid } = req.body;
+    const file = req.file;
 
-      if (!files.logo || !files.signature) {
-        return res.status(400).json({ message: "Logo and Signature are required" });
-      }
+    const image = file.path;
 
-      const gallary = new Gallary({
-        Gallary_uuid: uuid(),
-        institute_uuid,
-        logo: files.logo[0].path,
-        signature: files.signature[0].path,
-      });
+    const gallaries = new Gallary({ institute_uuid, image, Gallary_uuid: uuid() });
+    await gallaries.save();
 
-      await gallary.save();
-      res.status(201).json({ success: true, result: gallary });
-    } catch (err) {
-      console.error("Error uploading gallary:", err);
-      res.status(500).json({ message: "Server error" });
-    }
+    res.status(201).json(gallaries);
+  } catch (err) {
+    console.error('Error uploading gallary:', err);
+    res.status(500).json({ message: 'Server error' });
   }
-);
+});
+
 
 // GET all gallaries
 router.get('/GetGallaryList/:institute_id', async (req, res) => {
@@ -78,26 +68,24 @@ router.delete('/:id', async (req, res) => {
     if (!gallary) return res.status(404).json({ message: 'Gallary not found' });
 
     await Gallary.findByIdAndDelete(req.params.id);
-    res.json({ message: 'User deleted successfully' });
+    res.json({ message: 'Gallary deleted successfully' });
   } catch (err) {
     console.error('Delete error:', err);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// ✅ Update gallary (logo or signature)
-router.put(
-  "/:id",
-  upload.fields([{ name: "logo", maxCount: 1 }, { name: "signature", maxCount: 1 }]),
-  async (req, res) => {
+// ✅ Update gallary
+router.put("/:id", upload.single("image"),  async (req, res) => {
     try {
       const { institute_uuid } = req.body;
-      const files = req.files;
+      const file = req.file;
 
       const updateData = { institute_uuid };
 
-      if (files.logo) updateData.logo = files.logo[0].path;
-      if (files.signature) updateData.signature = files.signature[0].path;
+      if (file) {
+        updateData.image = file.path;
+      }
 
       const gallary = await Gallary.findByIdAndUpdate(req.params.id, updateData, {
         new: true,
@@ -114,5 +102,6 @@ router.put(
     }
   }
 );
+
 
 module.exports = router;
