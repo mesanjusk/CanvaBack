@@ -1,41 +1,32 @@
 const express = require('express');
-const Student = require('../models/Student');
-const Admission = require('../models/Admission');
+const School = require('../models/School');
 const User = require('../models/User');
-const IdCardTemplate = require('../models/IdCardTemplate');
-const ReportCardTemplate = require('../models/ReportCardTemplate');
+const Student = require('../models/Student');
+const Template = require('../models/Template');
+const EditRequest = require('../models/EditRequest');
+const IdCardRecord = require('../models/IdCardRecord');
+const { requireAuth, requirePermission } = require('../middleware/auth');
+
 const router = express.Router();
+router.use(requireAuth);
 
-router.get('/summary', async (req, res) => {
-  try {
-    const { institute_uuid } = req.query;
-    if (!institute_uuid) return res.status(400).json({ success: false, message: 'institute_uuid is required' });
+router.get('/summary', requirePermission('dashboard.read'), async (req, res) => {
+  const schoolFilter = req.user.role === 'super_admin' ? {} : { schoolId: req.user.schoolId };
+  const idCardFilter = req.user.role === 'super_admin' ? {} : { schoolId: req.user.schoolId };
 
-    const [students, admissions, users, idCards, reportCards, recentAdmissions] = await Promise.all([
-      Student.countDocuments({ institute_uuid }),
-      Admission.countDocuments({ institute_uuid }),
-      User.countDocuments({ institute_uuid }),
-      IdCardTemplate.countDocuments({ institute_uuid }),
-      ReportCardTemplate.countDocuments({ institute_uuid }),
-      Admission.find({ institute_uuid }).sort({ createdAt: -1 }).limit(5),
-    ]);
+  const [schools, users, students, templates, editRequests, records] = await Promise.all([
+    School.countDocuments(req.user.role === 'super_admin' ? {} : { _id: req.user.schoolId }),
+    User.countDocuments(schoolFilter),
+    Student.countDocuments(schoolFilter),
+    Template.countDocuments(schoolFilter),
+    EditRequest.countDocuments({ ...schoolFilter, status: 'pending' }),
+    IdCardRecord.countDocuments(idCardFilter),
+  ]);
 
-    res.json({
-      success: true,
-      data: {
-        cards: [
-          { label: 'Students', value: students },
-          { label: 'Admissions', value: admissions },
-          { label: 'Users', value: users },
-          { label: 'ID Card Templates', value: idCards },
-          { label: 'Report Card Templates', value: reportCards },
-        ],
-        recentAdmissions,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+  res.json({
+    success: true,
+    data: { schools, users, students, templates, pendingCorrections: editRequests, cardRecords: records },
+  });
 });
 
 module.exports = router;

@@ -1,44 +1,30 @@
 const mongoose = require('mongoose');
-const { v4: uuidv4 } = require('uuid');
 
-const studentSchema = new mongoose.Schema({
-  uuid: { type: String, default: uuidv4, unique: true },
-  institute_uuid: { type: String, required: true },
-
-  firstName: { type: String, required: true },
-  middleName: String,
-  lastName: String,
-  dob: Date,
-  gender: { type: String, enum: ['Male', 'Female', 'Other'] },
-
-  mobileSelf: { type: String },
-  mobileSelfWhatsapp: { type: Boolean, default: false },
-  mobileParent: { type: String },
-  mobileParentWhatsapp: { type: Boolean, default: false },
-  address: String,
-  education: String,
-  schoolName: String,
-  admissionNo: { type: String, default: '' },
-  className: { type: String, default: '' },
-  section: { type: String, default: '' },
-  rollNumber: { type: String, default: '' },
-  academicYear: { type: String, default: '' },
-  guardianName: { type: String, default: '' },
-  guardianRelation: { type: String, default: '' },
-  house: { type: String, default: '' },
-  bloodGroup: { type: String, default: '' },
-  email: { type: String, default: '' },
-  status: { type: String, default: 'active' },
-  photo: [String],
-  createdBy: String,
-}, { timestamps: true });
-
-// Virtual for full name
-studentSchema.virtual('fullName').get(function () {
-  return `${this.firstName || ''} ${this.middleName || ''} ${this.lastName || ''}`.trim();
-});
-
-// Indexes for faster lookups
-studentSchema.index({ institute_uuid: 1 });
+const studentSchema = new mongoose.Schema(
+  {
+    schoolId: { type: mongoose.Schema.Types.ObjectId, ref: 'School', required: true, index: true },
+    admissionNo: { type: String, default: '' },
+    rollNo: { type: String, default: '' },
+    fullName: { type: String, required: true },
+    className: { type: String, default: '' },
+    section: { type: String, default: '' },
+    gender: { type: String, default: '' },
+    dob: { type: String, default: '' },
+    fatherName: { type: String, default: '' },
+    motherName: { type: String, default: '' },
+    bloodGroup: { type: String, default: '' },
+    contactNumber: { type: String, default: '' },
+    address: { type: String, default: '' },
+    photoUrl: { type: String, default: '' },
+    status: { type: String, enum: ['draft', 'pending_review', 'approved'], default: 'draft' },
+    correctedAt: { type: Date, default: null },
+    approvedAt: { type: Date, default: null },
+    approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    publicEditToken: { type: String, default: '' },
+    publicEditExpiresAt: { type: Date, default: null },
+  },
+  { timestamps: true }
+);
 
 module.exports = mongoose.model('Student', studentSchema);
