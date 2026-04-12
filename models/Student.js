@@ -18,6 +18,17 @@ const studentSchema = new mongoose.Schema({
   address: String,
   education: String,
   schoolName: String,
+  admissionNo: { type: String, default: '' },
+  className: { type: String, default: '' },
+  section: { type: String, default: '' },
+  rollNumber: { type: String, default: '' },
+  academicYear: { type: String, default: '' },
+  guardianName: { type: String, default: '' },
+  guardianRelation: { type: String, default: '' },
+  house: { type: String, default: '' },
+  bloodGroup: { type: String, default: '' },
+  email: { type: String, default: '' },
+  status: { type: String, default: 'active' },
   photo: [String],
   createdBy: String,
 }, { timestamps: true });
@@ -28,7 +39,6 @@ studentSchema.virtual('fullName').get(function () {
 });
 
 // Indexes for faster lookups
-studentSchema.index({ uuid: 1 }, { unique: true });
 studentSchema.index({ institute_uuid: 1 });
 
 module.exports = mongoose.model('Student', studentSchema);

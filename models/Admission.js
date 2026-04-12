@@ -10,6 +10,14 @@ const admissionSchema = new mongoose.Schema({
   course: { type: String, required: true },
   batchTime: String,
   examEvent: String,
+  className: { type: String, default: '' },
+  section: { type: String, default: '' },
+  academicYear: { type: String, default: '' },
+  source: { type: String, default: '' },
+  feesPlanned: { type: Number, default: 0 },
+  discountAmount: { type: Number, default: 0 },
+  netFees: { type: Number, default: 0 },
+  status: { type: String, default: 'active' },
 
     confirmationStatus: {
     type: String,
@@ -25,7 +33,6 @@ const admissionSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Indexes for fast report queries
-admissionSchema.index({ uuid: 1 }, { unique: true });
 admissionSchema.index({ institute_uuid: 1 });
 admissionSchema.index({ student_uuid: 1 });
 admissionSchema.index({ course: 1 });
