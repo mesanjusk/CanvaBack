@@ -20,6 +20,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const idCardRoutes = require('./routes/idCardRoutes');
 const reportCardRoutes = require('./routes/reportCardRoutes');
 const userManagementRoutes = require('./routes/userManagementRoutes');
+const publicAccessRoutes = require('./routes/publicAccessRoutes');
 
 const app = express();
 app.use(express.json({ limit: '15mb' }));
@@ -50,6 +51,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/id-cards', idCardRoutes);
 app.use('/api/report-cards', reportCardRoutes);
 app.use('/api/users', userManagementRoutes);
+app.use('/api/public', publicAccessRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found', path: req.originalUrl });
