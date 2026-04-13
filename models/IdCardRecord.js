@@ -1,18 +1,22 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
-const idCardRecordSchema = new mongoose.Schema(
-  {
-    schoolId: { type: mongoose.Schema.Types.ObjectId, ref: 'School', required: true, index: true },
-    studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true },
-    templateId: { type: mongoose.Schema.Types.ObjectId, ref: 'Template', required: true },
-    status: { type: String, enum: ['draft', 'generated', 'approved'], default: 'draft' },
-    previewPayload: { type: mongoose.Schema.Types.Mixed, default: {} },
-    generatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-    approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-  },
-  { timestamps: true }
-);
+const idCardRecordSchema = new mongoose.Schema({
+  uuid: { type: String, default: uuidv4, unique: true },
+  institute_uuid: { type: String, required: true, index: true },
+  template_uuid: { type: String, required: true, index: true },
+  student_uuid: { type: String, default: '', index: true },
+  sourceType: { type: String, enum: ['database', 'excel', 'manual'], default: 'database' },
+  data: { type: mongoose.Schema.Types.Mixed, default: {} },
+  status: { type: String, enum: ['draft', 'pending_photo', 'ready', 'approved'], default: 'draft' },
+  imageDataUrl: { type: String, default: '' },
+  pdfDataUrl: { type: String, default: '' },
+  shareToken: { type: String, default: '', index: true },
+  shareRole: { type: String, enum: ['student', 'teacher', 'admin', 'guardian', 'open'], default: 'student' },
+  shareExpiresAt: { type: Date, default: null },
+  lastEditedBy: { type: String, default: '' },
+}, { timestamps: true });
 
-idCardRecordSchema.index({ schoolId: 1, studentId: 1, templateId: 1 }, { unique: true });
+idCardRecordSchema.index({ institute_uuid: 1, template_uuid: 1, createdAt: -1 });
 
 module.exports = mongoose.model('IdCardRecord', idCardRecordSchema);
